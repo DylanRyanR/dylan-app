@@ -109,6 +109,7 @@ public class DylanLiuliController extends BaseController
     @Operation(summary = "删除琉璃-内容")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
+        // 进行删除操作
         return toAjax(dylanLiuliService.deleteDylanLiuliByIds(ids));
     }
 }
