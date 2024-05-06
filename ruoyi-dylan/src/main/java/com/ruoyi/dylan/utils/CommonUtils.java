@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.dylan.dto.LiuliInfoDto;
 import com.ruoyi.dylan.dto.LiuliListDto;
 import com.ruoyi.dylan.dto.RequestDto;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +74,11 @@ public class CommonUtils {
     /**
      * 请求详情
      */
-//    public static
+    public static LiuliInfoDto getLiuliInfo(String host){
+        host = host + "/liuli/info";
+
+        return null;
+    }
 
 //    public static void main(String[] args) {
 //        List<LiuliListDto> liuliList = getLiuliList("http://localhost:8081");
