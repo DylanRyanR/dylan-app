@@ -1,6 +1,8 @@
 package com.ruoyi.dylan.mapper;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.dylan.domain.DylanLiuli;
 
 /**
@@ -9,7 +11,7 @@ import com.ruoyi.dylan.domain.DylanLiuli;
  * @author dylan
  * @date 2024-03-17
  */
-public interface DylanLiuliMapper 
+public interface DylanLiuliMapper extends BaseMapper<DylanLiuli>
 {
     /**
      * 查询琉璃-内容

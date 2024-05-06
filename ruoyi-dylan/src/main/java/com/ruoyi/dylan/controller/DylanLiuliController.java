@@ -2,6 +2,7 @@ package com.ruoyi.dylan.controller;
 
 import java.util.List;
 
+import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,20 +42,21 @@ public class DylanLiuliController extends BaseController
     /**
      * 查询琉璃-内容列表
      */
-    @PreAuthorize("@ss.hasPermi('dylan:liuli:list')")
+//    @PreAuthorize("@ss.hasPermi('dylan:liuli:list')")
     @GetMapping("/list")
     @Operation(summary = "查询琉璃-内容列表")
     public TableDataInfo list(DylanLiuli dylanLiuli)
     {
         startPage();
         List<DylanLiuli> list = dylanLiuliService.selectDylanLiuliList(dylanLiuli);
-        return getDataTable(list);
+        List<DylanLiuliPageVo> vos = dylanLiuliService.generateVo(list);
+        return getDataTable(vos);
     }
 
     /**
      * 导出琉璃-内容列表
      */
-    @PreAuthorize("@ss.hasPermi('dylan:liuli:export')")
+//    @PreAuthorize("@ss.hasPermi('dylan:liuli:export')")
     @Log(title = "琉璃-内容", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @Operation(summary = "导出琉璃-内容列表")
@@ -68,7 +70,7 @@ public class DylanLiuliController extends BaseController
     /**
      * 获取琉璃-内容详细信息
      */
-    @PreAuthorize("@ss.hasPermi('dylan:liuli:query')")
+//    @PreAuthorize("@ss.hasPermi('dylan:liuli:query')")
     @GetMapping(value = "/{id}")
     @Operation(summary = "获取琉璃-内容详细信息")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -79,7 +81,7 @@ public class DylanLiuliController extends BaseController
     /**
      * 新增琉璃-内容
      */
-    @PreAuthorize("@ss.hasPermi('dylan:liuli:add')")
+//    @PreAuthorize("@ss.hasPermi('dylan:liuli:add')")
     @Log(title = "琉璃-内容", businessType = BusinessType.INSERT)
     @PostMapping
     @Operation(summary = "新增琉璃-内容")
@@ -91,7 +93,7 @@ public class DylanLiuliController extends BaseController
     /**
      * 修改琉璃-内容
      */
-    @PreAuthorize("@ss.hasPermi('dylan:liuli:edit')")
+//    @PreAuthorize("@ss.hasPermi('dylan:liuli:edit')")
     @Log(title = "琉璃-内容", businessType = BusinessType.UPDATE)
     @PutMapping
     @Operation(summary = "修改琉璃-内容")
@@ -103,7 +105,7 @@ public class DylanLiuliController extends BaseController
     /**
      * 删除琉璃-内容
      */
-    @PreAuthorize("@ss.hasPermi('dylan:liuli:remove')")
+//    @PreAuthorize("@ss.hasPermi('dylan:liuli:remove')")
     @Log(title = "琉璃-内容", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     @Operation(summary = "删除琉璃-内容")

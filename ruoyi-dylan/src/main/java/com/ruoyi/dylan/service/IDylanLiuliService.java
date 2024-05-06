@@ -1,7 +1,10 @@
 package com.ruoyi.dylan.service;
 
 import java.util.List;
+
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.ruoyi.dylan.domain.DylanLiuli;
+import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 
 /**
  * 琉璃-内容Service接口
@@ -9,7 +12,7 @@ import com.ruoyi.dylan.domain.DylanLiuli;
  * @author dylan
  * @date 2024-03-17
  */
-public interface IDylanLiuliService 
+public interface IDylanLiuliService extends IService<DylanLiuli>
 {
     /**
      * 查询琉璃-内容
@@ -58,4 +61,8 @@ public interface IDylanLiuliService
      * @return 结果
      */
     public int deleteDylanLiuliById(Long id);
+
+    void syncLiuliContent();
+
+    List<DylanLiuliPageVo> generateVo(List<DylanLiuli> list);
 }
