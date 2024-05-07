@@ -131,3 +131,6 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+myScrap:
+  host: ${SCRAP_HOST}
