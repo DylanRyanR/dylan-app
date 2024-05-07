@@ -54,7 +54,7 @@ jobs:
     # build image and push to ACR
     - name: Build and Push Docker Image
       env:
-        IMAGE_TAG: latest # 用于标记容器版本号
+        IMAGE_TAG: ${{ github.event.inputs.tags }} # 用于标记容器版本号
       run: |
         docker build -t registry.cn-hangzhou.aliyuncs.com/dylan-ryan/dylan-app:$IMAGE_TAG .
         docker push registry.cn-hangzhou.aliyuncs.com/dylan-ryan/dylan-app:$IMAGE_TAG
