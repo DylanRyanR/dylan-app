@@ -51,7 +51,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     @Autowired
     private IDylanLiuliTagService dylanLiuliTagService;
 
-    @Value("myScrap.host")
+    @Value("${myScrap.host}")
     private String scrapHost;
 
     /**
@@ -161,9 +161,15 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
             // 循环查询对应的详情
             List<DylanCatagory> finalCatagories = catagories;
             List<DylanTag> finalTags = tags;
+            Random random = new Random();
             liuliList.stream().forEach(liuli -> {
+                try {
+                    Thread.sleep(random.nextInt(11));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 String infoLink = liuli.getInfoLink();
-                LiuliInfoDto liuliInfo = CommonUtils.getLiuliInfo(infoLink);
+                LiuliInfoDto liuliInfo = CommonUtils.getLiuliInfo(scrapHost, infoLink);
                 if (ObjectUtils.isNotNull(liuliInfo)){
                     DylanLiuli dylanLiuli = initLiuli(liuli, liuliInfo, finalCatagories, finalTags);
                     list.add(dylanLiuli);
@@ -249,7 +255,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     private List<DylanCatagory> initCatagories(List<DylanCatagory> catagories, List<LiuliListDto> liuliList) {
         Date nowDate = DateUtils.getNowDate();
         Long userId = 1L;
-        List<String> catList = liuliList.stream().filter(val -> StringUtils.isNotBlank(val.getCat())).map(LiuliListDto::getCat).collect(Collectors.toUnmodifiableList());
+        Set<String> catList = liuliList.stream().filter(val -> StringUtils.isNotBlank(val.getCat())).map(LiuliListDto::getCat).collect(Collectors.toSet());
         if (ObjectUtils.isNotEmpty(catList)){
             // 筛选其中是否存在已有的类型
             List<DylanCatagory> insertList = new ArrayList<>();
@@ -284,7 +290,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     private DylanLiuli initLiuli(LiuliListDto liuli, LiuliInfoDto liuliInfo, List<DylanCatagory> catagories, List<DylanTag> tags) {
         Date nowDate = DateUtils.getNowDate();
         Long userId = 1L;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
         Date publishTime = null;
         try {
             publishTime = sdf.parse(liuli.getPublishTime());
@@ -292,6 +298,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
             throw new RuntimeException(e);
         }
         DylanLiuli dylanLiuli = new DylanLiuli();
+        dylanLiuli.setLiuliLink(liuli.getInfoLink());
         dylanLiuli.setLiuliTitle(liuli.getTitle());
         dylanLiuli.setSubContent(liuli.getDesc());
         dylanLiuli.setPublishAuthor(liuli.getAuthor());
@@ -299,7 +306,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
         if (StringUtils.isNotBlank(liuli.getCat())){
             dylanLiuli.setLiuliCat(catagories.stream().filter(val -> liuli.getCat().equals(val.getName())).map(DylanCatagory::getId).findFirst().orElse(null));
         }
-        dylanLiuli.setSubContent(liuliInfo.getName());
+        dylanLiuli.setContent(liuliInfo.getName());
         dylanLiuli.setBtLink(CommonUtils.fixBtLink(liuliInfo.getBtLink()));
         dylanLiuli.setCreateTime(nowDate);
         dylanLiuli.setUpdateTime(nowDate);
@@ -356,6 +363,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                         }
                     }
                 }
+                vos.add(vo);
             });
         }
 

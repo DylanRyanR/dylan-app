@@ -74,9 +74,30 @@ public class CommonUtils {
     /**
      * 请求详情
      */
-    public static LiuliInfoDto getLiuliInfo(String host){
+    public static LiuliInfoDto getLiuliInfo(String host, String infoLink){
         host = host + "/liuli/info";
-
+        Map<String, String> urlData = new HashMap<>();
+        urlData.put("url", infoLink);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json;charset=UTF-8");
+        RequestDto dto = new RequestDto();
+        dto.setCharset("UTF-8");
+        dto.setMethod("GET");
+        dto.setHeaders(headers);
+        dto.setUrlApi(host);
+        dto.setUrlData(urlData);
+        try {
+            String data = RequestUtils.sendRequest(dto);
+            if (StringUtils.isNotBlank(data)){
+                ObjectMapper objectMapper = new ObjectMapper();
+                LiuliInfoDto subContentList = objectMapper.readValue(data, new TypeReference<LiuliInfoDto>() {});
+                if (ObjectUtils.isNotEmpty(subContentList)){
+                    return subContentList;
+                }
+            }
+        }catch (Exception e){
+            log.info("报错:"+e.getMessage());
+        }
         return null;
     }
 

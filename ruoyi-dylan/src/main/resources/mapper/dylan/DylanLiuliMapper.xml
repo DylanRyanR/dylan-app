@@ -9,6 +9,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="liuliLink"    column="liuli_link"    />
         <result property="btLink"    column="bt_link"    />
         <result property="liuliTitle"    column="liuli_title"    />
+        <result property="liuliCat"    column="liuli_cat"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="publishAuthor"    column="publish_author"    />
+        <result property="subContent"    column="sub_content"    />
         <result property="content"    column="content"    />
         <result property="delFlag"    column="del_flag"    />
         <result property="createBy"    column="create_by"    />
@@ -18,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectDylanLiuliVo">
-        select id, liuli_link, bt_link, liuli_title, content, del_flag, create_by, create_time, update_by, update_time from dylan_liuli
+        select id, liuli_link, bt_link, liuli_title, liuli_cat, publish_time, publish_author, sub_content, content, del_flag, create_by, create_time, update_by, update_time from dylan_liuli
     </sql>
 
     <select id="selectDylanLiuliList" parameterType="DylanLiuli" resultMap="DylanLiuliResult">

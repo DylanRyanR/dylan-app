@@ -3,6 +3,7 @@ package com.ruoyi.dylan.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -52,6 +53,7 @@ public class DylanLiuli extends BaseEntity
     private Long liuliCat;
 
     /** 发布日期*/
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(description = "发布日期")
     private Date publishTime;
 
