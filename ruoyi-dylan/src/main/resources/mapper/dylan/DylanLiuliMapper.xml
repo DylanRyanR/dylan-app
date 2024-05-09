@@ -28,11 +28,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectDylanLiuliList" parameterType="DylanLiuli" resultMap="DylanLiuliResult">
         <include refid="selectDylanLiuliVo"/>
         <where>  
-            <if test="liuliLink != null  and liuliLink != ''"> and liuli_link = #{liuliLink}</if>
-            <if test="btLink != null  and btLink != ''"> and bt_link = #{btLink}</if>
-            <if test="liuliTitle != null  and liuliTitle != ''"> and liuli_title = #{liuliTitle}</if>
-            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="liuliLink != null  and liuliLink != ''"> and liuli_link like concat("%", #{liuliLink}, "%")</if>
+            <if test="btLink != null  and btLink != ''"> and bt_link like concat("%", #{btLink}, "%")</if>
+            <if test="liuliTitle != null  and liuliTitle != ''"> and (liuli_title like concat("%", #{liuliTitle}, "%") or sub_content like concat("%", #{liuliTitle}, "%") or content like concat("%", #{liuliTitle}, "%"))</if>
+            <if test="content != null  and content != ''"> and content like concat("%", #{content}, "%")</if>
         </where>
+        order by publish_time desc
     </select>
     
     <select id="selectDylanLiuliById" parameterType="Long" resultMap="DylanLiuliResult">

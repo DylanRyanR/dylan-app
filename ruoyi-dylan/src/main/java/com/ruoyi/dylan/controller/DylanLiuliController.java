@@ -2,6 +2,7 @@ package com.ruoyi.dylan.controller;
 
 import java.util.List;
 
+import com.github.pagehelper.PageInfo;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,7 +51,7 @@ public class DylanLiuliController extends BaseController
         startPage();
         List<DylanLiuli> list = dylanLiuliService.selectDylanLiuliList(dylanLiuli);
         List<DylanLiuliPageVo> vos = dylanLiuliService.generateVo(list);
-        return getDataTable(vos);
+        return getDataTable(vos, new PageInfo(list).getTotal());
     }
 
     /**
