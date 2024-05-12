@@ -44,10 +44,10 @@ public class CommonUtils {
      * @param host
      * @return
      */
-    public static List<LiuliListDto> getLiuliList(String host){
+    public static List<LiuliListDto> getLiuliList(String host, String liuliLink){
         host = host + "/liuli/list";
         Map<String, String> urlData = new HashMap<>();
-        urlData.put("url", "https://hacg.uno/wp/");
+        urlData.put("url", liuliLink);
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json;charset=UTF-8");
         RequestDto dto = new RequestDto();

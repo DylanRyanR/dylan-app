@@ -23,7 +23,6 @@ import com.ruoyi.dylan.utils.CommonUtils;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.ruoyi.dylan.mapper.DylanLiuliMapper;
 import com.ruoyi.dylan.domain.DylanLiuli;
@@ -135,10 +134,10 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void syncLiuliContent() {
+    public void syncLiuliContent(String mainLink) {
         List<DylanLiuli> list = new ArrayList<>();
         // 获取今天最新的内容
-        List<LiuliListDto> liuliList = CommonUtils.getLiuliList(scrapHost);
+        List<LiuliListDto> liuliList = CommonUtils.getLiuliList(scrapHost, mainLink);
         if (ObjectUtils.isNotEmpty(liuliList)) {
             // 查询是否已经存在
             List<String> titles = liuliList.stream().filter(val -> StringUtils.isNotBlank(val.getTitle())).map(LiuliListDto::getTitle).distinct().collect(Collectors.toList());
@@ -175,13 +174,33 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                     list.add(dylanLiuli);
                 }
             });
-            // 执行内容更新
+            // 二次筛选，去掉重复的btlink
+            List<DylanLiuli> insertList = new ArrayList<>();
             if (ObjectUtils.isNotEmpty(list)){
-                saveBatch(list);
+                List<String> btLinkList = list.stream().map(DylanLiuli::getBtLink).distinct().collect(Collectors.toUnmodifiableList());
+                List<DylanLiuli> btExistLiuliList = list(new QueryWrapper<DylanLiuli>().lambda()
+                        .in(DylanLiuli::getBtLink, btLinkList));
+                if (ObjectUtils.isNotEmpty(btExistLiuliList)){
+                    Set<String> existBtList = btExistLiuliList.stream().map(DylanLiuli::getBtLink).collect(Collectors.toSet());
+                    if (ObjectUtils.isNotEmpty(existBtList)){
+                        List<DylanLiuli> subList = list.stream().filter(val -> !existBtList.contains(val.getBtLink())).collect(Collectors.toList());
+                        if (ObjectUtils.isNotEmpty(subList)){
+                            insertList.addAll(subList);
+                        }
+                    }else {
+                        insertList.addAll(list);
+                    }
+                }else {
+                    insertList.addAll(list);
+                }
+            }
+            // 执行内容更新
+            if (ObjectUtils.isNotEmpty(insertList)){
+                saveBatch(insertList);
                 // 将标签内容整理
                 List<DylanLiuliTag> liuliTags = new ArrayList<>();
                 List<LiuliListDto> finalLiuliList = liuliList;
-                list.forEach(liuli ->{
+                insertList.forEach(liuli ->{
                     Long id = liuli.getId();
                     LiuliListDto liuliListDto = finalLiuliList.stream().filter(val -> liuli.getLiuliTitle().equals(val.getTitle())).findFirst().orElse(null);
                     if (ObjectUtils.isNotNull(liuliListDto)){

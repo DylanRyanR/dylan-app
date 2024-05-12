@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.dylan.mapper.DylanLiuliLinkMapper">
+    
+    <resultMap type="DylanLiuliLink" id="DylanLiuliLinkResult">
+        <result property="id"    column="id"    />
+        <result property="mainLink"    column="main_link"    />
+        <result property="chkUse"    column="chk_use"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDylanLiuliLinkVo">
+        select id, main_link, chk_use, del_flag, create_by, create_time, update_by, update_time from dylan_liuli_link
+    </sql>
+
+    <select id="selectDylanLiuliLinkList" parameterType="DylanLiuliLink" resultMap="DylanLiuliLinkResult">
+        <include refid="selectDylanLiuliLinkVo"/>
+        <where>  
+            <if test="mainLink != null  and mainLink != ''"> and main_link = #{mainLink}</if>
+            <if test="chkUse != null "> and chk_use = #{chkUse}</if>
+        </where>
+    </select>
+    
+    <select id="selectDylanLiuliLinkById" parameterType="Long" resultMap="DylanLiuliLinkResult">
+        <include refid="selectDylanLiuliLinkVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertDylanLiuliLink" parameterType="DylanLiuliLink" useGeneratedKeys="true" keyProperty="id">
+        insert into dylan_liuli_link
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mainLink != null">main_link,</if>
+            <if test="chkUse != null">chk_use,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mainLink != null">#{mainLink},</if>
+            <if test="chkUse != null">#{chkUse},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDylanLiuliLink" parameterType="DylanLiuliLink">
+        update dylan_liuli_link
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mainLink != null">main_link = #{mainLink},</if>
+            <if test="chkUse != null">chk_use = #{chkUse},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDylanLiuliLinkById" parameterType="Long">
+        delete from dylan_liuli_link where id = #{id}
+    </delete>
+
+    <delete id="deleteDylanLiuliLinkByIds" parameterType="String">
+        delete from dylan_liuli_link where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

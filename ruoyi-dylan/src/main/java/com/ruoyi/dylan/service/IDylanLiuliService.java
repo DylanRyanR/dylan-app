@@ -62,7 +62,7 @@ public interface IDylanLiuliService extends IService<DylanLiuli>
      */
     public int deleteDylanLiuliById(Long id);
 
-    void syncLiuliContent();
+    void syncLiuliContent(String mainLink);
 
     List<DylanLiuliPageVo> generateVo(List<DylanLiuli> list);
 }
