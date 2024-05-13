@@ -22,4 +22,8 @@ public class DylanLiuliPageVo extends DylanLiuli {
     /** 标签名称*/
     @Schema(description = "标签名称")
     private String tagNames;
+
+    /** 图片url*/
+    @Schema(description = "图片url")
+    private String imgUrl;
 }

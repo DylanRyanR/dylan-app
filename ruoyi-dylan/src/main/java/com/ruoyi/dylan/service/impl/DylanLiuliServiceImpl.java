@@ -398,7 +398,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     public List<DylanLiuliPageVo> generateVo(List<DylanLiuli> list) {
         List<DylanLiuliPageVo> vos = new ArrayList<>();
         if (ObjectUtils.isNotEmpty(list)){
-            // 获取对应的类型和标签
+            // 获取对应的类型和标签、图片附件
             List<Long> catIdList = list.stream().filter(val -> ObjectUtils.isNotNull(val.getLiuliCat())).map(DylanLiuli::getLiuliCat).distinct().collect(Collectors.toList());
             List<Long> idList = list.stream().map(DylanLiuli::getId).collect(Collectors.toList());
             List<DylanCatagory> dylanCatagories = new ArrayList<>();
@@ -413,6 +413,19 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                 tagIdList.addAll(liuliTags.stream().map(DylanLiuliTag::getTagId).collect(Collectors.toList()));
                 if (ObjectUtils.isNotEmpty(tagIdList)){
                     dylanTags = dylanTagService.listByIds(tagIdList);
+                }
+            }
+            // 查询图片附件
+            List<DylanLiuliAnnex> liuliAnnexList = dylanLiuliAnnexService.list(new QueryWrapper<DylanLiuliAnnex>().lambda()
+                    .in(DylanLiuliAnnex::getLiuliId, idList));
+            List<DylanAnnex> dylanAnnexList = new ArrayList<>();
+            if (ObjectUtils.isNotEmpty(liuliAnnexList)){
+                Set<Long> annexIdSet = liuliAnnexList.stream().map(DylanLiuliAnnex::getAnnexId).collect(Collectors.toSet());
+                if (ObjectUtils.isNotEmpty(annexIdSet)){
+                    List<DylanAnnex> subDylanAnnexList = dylanAnnexService.listByIds(annexIdSet);
+                    if (ObjectUtils.isNotEmpty(subDylanAnnexList)){
+                        dylanAnnexList.addAll(subDylanAnnexList);
+                    }
                 }
             }
             List<DylanCatagory> finalDylanCatagories = dylanCatagories;
@@ -439,6 +452,16 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                                     vo.setTagNames(subDylanTags.stream().map(DylanTag::getName).collect(Collectors.joining(",")));
                                 }
                             }
+                        }
+                    }
+                }
+                // 拼接图片
+                if (ObjectUtils.isNotEmpty(liuliAnnexList)){
+                    DylanLiuliAnnex dylanLiuliAnnex = liuliAnnexList.stream().filter(val -> liuli.getId().equals(val.getLiuliId())).findFirst().orElse(null);
+                    if (ObjectUtils.isNotNull(dylanLiuliAnnex)){
+                        DylanAnnex dylanAnnex = dylanAnnexList.stream().filter(val -> dylanLiuliAnnex.getAnnexId().equals(val.getId())).findFirst().orElse(null);
+                        if (ObjectUtils.isNotEmpty(dylanAnnex)){
+                            vo.setImgUrl(dylanAnnex.getUrl());
                         }
                     }
                 }
