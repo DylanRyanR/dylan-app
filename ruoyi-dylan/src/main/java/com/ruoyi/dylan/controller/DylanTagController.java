@@ -1,6 +1,11 @@
 package com.ruoyi.dylan.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.ruoyi.dylan.vo.DylanTagBoxVo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,5 +114,22 @@ public class DylanTagController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(dylanTagService.deleteDylanTagByIds(ids));
+    }
+
+    /**
+     * 标签下拉列表
+     */
+    @Log(title = "标签下拉列表", businessType = BusinessType.OTHER)
+    @GetMapping("/getBoxList")
+    public AjaxResult getBoxList(){
+        List<DylanTagBoxVo> vos = new ArrayList<>();
+        List<DylanTag> list = dylanTagService.list();
+        if (ObjectUtils.isNotEmpty(list)){
+            for (DylanTag tag : list){
+                DylanTagBoxVo vo = BeanUtil.toBean(tag, DylanTagBoxVo.class);
+                vos.add(vo);
+            }
+        }
+        return AjaxResult.success(vos);
     }
 }

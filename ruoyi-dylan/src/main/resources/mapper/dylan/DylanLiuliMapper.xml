@@ -22,16 +22,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectDylanLiuliVo">
-        select id, liuli_link, bt_link, liuli_title, liuli_cat, publish_time, publish_author, sub_content, content, del_flag, create_by, create_time, update_by, update_time from dylan_liuli
+        select distinct dl.id, dl.liuli_link, dl.bt_link, dl.liuli_title, dl.liuli_cat, dl.publish_time, dl.publish_author, dl.sub_content, dl.content, dl.del_flag, dl.create_by, dl.create_time, dl.update_by, dl.update_time from dylan_liuli dl
+        left join dylan_liuli_tag dlt on dl.id = dlt.liuli_id
+        left join dylan_tag dt on dlt.tag_id = dt.id
     </sql>
 
-    <select id="selectDylanLiuliList" parameterType="DylanLiuli" resultMap="DylanLiuliResult">
+    <select id="selectDylanLiuliList" parameterType="com.ruoyi.dylan.bo.DylanLiuliBo" resultMap="DylanLiuliResult">
         <include refid="selectDylanLiuliVo"/>
         <where>  
-            <if test="liuliLink != null  and liuliLink != ''"> and liuli_link like concat("%", #{liuliLink}, "%")</if>
-            <if test="btLink != null  and btLink != ''"> and bt_link like concat("%", #{btLink}, "%")</if>
-            <if test="liuliTitle != null  and liuliTitle != ''"> and (liuli_title like concat("%", #{liuliTitle}, "%") or sub_content like concat("%", #{liuliTitle}, "%") or content like concat("%", #{liuliTitle}, "%"))</if>
+            <if test="liuliLink != null  and liuliLink != ''"> and dl.liuli_link like concat("%", #{liuliLink}, "%")</if>
+            <if test="btLink != null  and btLink != ''"> and dl.bt_link like concat("%", #{btLink}, "%")</if>
+            <if test="liuliTitle != null  and liuliTitle != ''"> and (dl.liuli_title like concat("%", #{liuliTitle}, "%") or dl.sub_content like concat("%", #{liuliTitle}, "%") or dl.content like concat("%", #{liuliTitle}, "%"))</if>
             <if test="content != null  and content != ''"> and content like concat("%", #{content}, "%")</if>
+
         </where>
         order by publish_time desc
     </select>

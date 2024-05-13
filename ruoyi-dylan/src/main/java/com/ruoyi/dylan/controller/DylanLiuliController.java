@@ -3,6 +3,7 @@ package com.ruoyi.dylan.controller;
 import java.util.List;
 
 import com.github.pagehelper.PageInfo;
+import com.ruoyi.dylan.bo.DylanLiuliBo;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,7 +47,7 @@ public class DylanLiuliController extends BaseController
 //    @PreAuthorize("@ss.hasPermi('dylan:liuli:list')")
     @GetMapping("/list")
     @Operation(summary = "查询琉璃-内容列表")
-    public TableDataInfo list(DylanLiuli dylanLiuli)
+    public TableDataInfo list(DylanLiuliBo dylanLiuli)
     {
         startPage();
         List<DylanLiuli> list = dylanLiuliService.selectDylanLiuliList(dylanLiuli);
@@ -61,7 +62,7 @@ public class DylanLiuliController extends BaseController
     @Log(title = "琉璃-内容", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @Operation(summary = "导出琉璃-内容列表")
-    public void export(HttpServletResponse response, DylanLiuli dylanLiuli)
+    public void export(HttpServletResponse response, DylanLiuliBo dylanLiuli)
     {
         List<DylanLiuli> list = dylanLiuliService.selectDylanLiuliList(dylanLiuli);
         ExcelUtil<DylanLiuli> util = new ExcelUtil<DylanLiuli>(DylanLiuli.class);

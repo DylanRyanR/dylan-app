@@ -3,6 +3,7 @@ package com.ruoyi.dylan.service;
 import java.util.List;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ruoyi.dylan.bo.DylanLiuliBo;
 import com.ruoyi.dylan.domain.DylanLiuli;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 
@@ -28,7 +29,7 @@ public interface IDylanLiuliService extends IService<DylanLiuli>
      * @param dylanLiuli 琉璃-内容
      * @return 琉璃-内容集合
      */
-    public List<DylanLiuli> selectDylanLiuliList(DylanLiuli dylanLiuli);
+    public List<DylanLiuli> selectDylanLiuliList(DylanLiuliBo dylanLiuli);
 
     /**
      * 新增琉璃-内容

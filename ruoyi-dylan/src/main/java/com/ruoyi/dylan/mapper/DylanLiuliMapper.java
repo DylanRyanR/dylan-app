@@ -3,6 +3,7 @@ package com.ruoyi.dylan.mapper;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ruoyi.dylan.bo.DylanLiuliBo;
 import com.ruoyi.dylan.domain.DylanLiuli;
 
 /**
@@ -27,7 +28,7 @@ public interface DylanLiuliMapper extends BaseMapper<DylanLiuli>
      * @param dylanLiuli 琉璃-内容
      * @return 琉璃-内容集合
      */
-    public List<DylanLiuli> selectDylanLiuliList(DylanLiuli dylanLiuli);
+    public List<DylanLiuli> selectDylanLiuliList(DylanLiuliBo dylanLiuli);
 
     /**
      * 新增琉璃-内容

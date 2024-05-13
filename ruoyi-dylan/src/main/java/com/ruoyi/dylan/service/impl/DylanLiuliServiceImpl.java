@@ -10,23 +10,19 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.dylan.domain.DylanCatagory;
-import com.ruoyi.dylan.domain.DylanLiuliTag;
-import com.ruoyi.dylan.domain.DylanTag;
+import com.ruoyi.dylan.bo.DylanLiuliBo;
+import com.ruoyi.dylan.domain.*;
 import com.ruoyi.dylan.dto.LiuliInfoDto;
 import com.ruoyi.dylan.dto.LiuliListDto;
-import com.ruoyi.dylan.service.IDylanCatagoryService;
-import com.ruoyi.dylan.service.IDylanLiuliTagService;
-import com.ruoyi.dylan.service.IDylanTagService;
+import com.ruoyi.dylan.service.*;
 import com.ruoyi.dylan.utils.CommonUtils;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.ruoyi.dylan.mapper.DylanLiuliMapper;
-import com.ruoyi.dylan.domain.DylanLiuli;
-import com.ruoyi.dylan.service.IDylanLiuliService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -50,6 +46,12 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     @Autowired
     private IDylanLiuliTagService dylanLiuliTagService;
 
+    @Autowired
+    private IDylanLiuliAnnexService dylanLiuliAnnexService;
+
+    @Autowired
+    private IDylanAnnexService dylanAnnexService;
+
     @Value("${myScrap.host}")
     private String scrapHost;
 
@@ -72,7 +74,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
      * @return 琉璃-内容
      */
     @Override
-    public List<DylanLiuli> selectDylanLiuliList(DylanLiuli dylanLiuli)
+    public List<DylanLiuli> selectDylanLiuliList(DylanLiuliBo dylanLiuli)
     {
         return dylanLiuliMapper.selectDylanLiuliList(dylanLiuli);
     }
@@ -161,6 +163,7 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
             List<DylanCatagory> finalCatagories = catagories;
             List<DylanTag> finalTags = tags;
             Random random = new Random();
+            Map<String, List<String>> imgMap = new HashMap<>();
             liuliList.stream().forEach(liuli -> {
                 try {
                     Thread.sleep(random.nextInt(11));
@@ -173,6 +176,9 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                     DylanLiuli dylanLiuli = initLiuli(liuli, liuliInfo, finalCatagories, finalTags);
                     list.add(dylanLiuli);
                 }
+                List<String> imgLinks = new ArrayList<>();
+                imgLinks.add(liuli.getImgLink());
+                imgMap.put(liuli.getTitle(), imgLinks);
             });
             // 二次筛选，去掉重复的btlink
             List<DylanLiuli> insertList = new ArrayList<>();
@@ -200,10 +206,13 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                 // 将标签内容整理
                 List<DylanLiuliTag> liuliTags = new ArrayList<>();
                 List<LiuliListDto> finalLiuliList = liuliList;
+                List<DylanAnnex> annexList = new ArrayList<>();
+                List<DylanLiuliAnnex> liuliAnnexList = new ArrayList<>();
                 insertList.forEach(liuli ->{
                     Long id = liuli.getId();
                     LiuliListDto liuliListDto = finalLiuliList.stream().filter(val -> liuli.getLiuliTitle().equals(val.getTitle())).findFirst().orElse(null);
                     if (ObjectUtils.isNotNull(liuliListDto)){
+                        // 拼接标签关联
                         List<String> dtoTags = liuliListDto.getTags();
                         if (ObjectUtils.isNotEmpty(dtoTags)){
                             List<DylanTag> subTags = finalTags.stream().filter(val -> dtoTags.contains(val.getName())).collect(Collectors.toUnmodifiableList());
@@ -217,13 +226,64 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                                 });
                             }
                         }
+                        // 拼接附件
+                        List<String> imgLinks = imgMap.get(liuli.getLiuliTitle());
+                        if (ObjectUtils.isNotEmpty(imgLinks)){
+                            imgLinks.forEach(imgLink -> {
+                                DylanAnnex dylanAnnex = initAnnex(imgLink);
+                                annexList.add(dylanAnnex);
+                            });
+                        }
                     }
                 });
+                // 保存标签关联
                 if (ObjectUtils.isNotEmpty(liuliTags)){
                     dylanLiuliTagService.saveBatch(liuliTags);
                 }
+                // 保存附件信息
+                if (ObjectUtils.isNotEmpty(annexList)){
+                    dylanAnnexService.saveBatch(annexList);
+                }
+                // 关联琉璃和图片信息
+                insertList.forEach(liuli -> {
+                    List<String> imgLinks = imgMap.get(liuli.getLiuliTitle());
+                    if (ObjectUtils.isNotEmpty(imgLinks)){
+                        Set<DylanAnnex> subAnnexList = annexList.stream().filter(val -> imgLinks.contains(val.getUrl())).collect(Collectors.toSet());
+                        if (ObjectUtils.isNotEmpty(subAnnexList)){
+                            subAnnexList.forEach(subAnnex -> {
+                                Long annexId = subAnnex.getId();
+                                DylanLiuliAnnex dylanLiuliAnnex = new DylanLiuliAnnex();
+                                dylanLiuliAnnex.setAnnexId(annexId);
+                                dylanLiuliAnnex.setLiuliId(liuli.getId());
+                                liuliAnnexList.add(dylanLiuliAnnex);
+                            });
+                        }
+                    }
+                });
+                // 保存琉璃-图片关联关系
+                if (ObjectUtils.isNotEmpty(liuliAnnexList)){
+                    dylanLiuliAnnexService.saveBatch(liuliAnnexList);
+                }
             }
         }
+    }
+
+    /**
+     * 初始化附件信息
+     * @param imgLink
+     * @return
+     */
+    private DylanAnnex initAnnex(String imgLink) {
+        DylanAnnex dylanAnnex = new DylanAnnex();
+        dylanAnnex.setUrl(imgLink);
+        dylanAnnex.setName(imgLink.substring(imgLink.lastIndexOf("/") + 1));
+        dylanAnnex.setDelFlag("0");
+        dylanAnnex.setCreateBy("1");
+        dylanAnnex.setUpdateBy("1");
+        Date nowDate = DateUtils.getNowDate();
+        dylanAnnex.setCreateTime(nowDate);
+        dylanAnnex.setUpdateTime(nowDate);
+        return dylanAnnex;
     }
 
     /**

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName LiuliTask
@@ -50,5 +51,27 @@ public class LiuliTask {
     /**
      * 定时爬取历年数据
      */
+    public void syncLiuliLinkForHistory(){
+        // 查询所有可用的琉璃链接
+        List<DylanLiuliLink> liuliLinkList = dylanLiuliLinkService.list(new QueryWrapper<DylanLiuliLink>().lambda()
+                .eq(DylanLiuliLink::getChkUse, 1));
+        if (ObjectUtils.isNotEmpty(liuliLinkList)){
+            for (DylanLiuliLink dylanLiuliLink : liuliLinkList) {
+                String mainLink = dylanLiuliLink.getMainLink();
+                String key = "liuliLink:" + mainLink;
+                if (!redisCache.hasKey(key)){
+                    redisCache.setCacheObject(key, 1, 120, TimeUnit.MINUTES);
+                }
+                // 获取要同步的页数
+                Integer pageCount = redisCache.getCacheObject(key);
+                Integer nowPage = pageCount + 1;
+                // 拼接页数
+                mainLink = mainLink + "/page/" + nowPage;
+                dylanLiuliService.syncLiuliContent(mainLink);
+                // 完成后拼接页数加一
+                redisCache.setCacheObject(key, nowPage, 120, TimeUnit.MINUTES);
+            }
+        }
 
+    }
 }
