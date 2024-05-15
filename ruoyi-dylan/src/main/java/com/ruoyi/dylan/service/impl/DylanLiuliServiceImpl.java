@@ -265,7 +265,17 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
                     dylanLiuliAnnexService.saveBatch(liuliAnnexList);
                 }
             }
+            // 将相关内容释放
+            titles.clear();
+            existList.clear();
+            catagories.clear();
+            tags.clear();
+            finalCatagories.clear();
+            finalTags.clear();
+            imgMap.clear();
+            insertList.clear();
         }
+        list.clear();
     }
 
     /**
