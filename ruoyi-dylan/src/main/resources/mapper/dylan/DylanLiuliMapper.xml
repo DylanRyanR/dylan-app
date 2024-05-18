@@ -22,9 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectDylanLiuliVo">
-        select distinct dl.id, dl.liuli_link, dl.bt_link, dl.liuli_title, dl.liuli_cat, dl.publish_time, dl.publish_author, dl.sub_content, dl.content, dl.del_flag, dl.create_by, dl.create_time, dl.update_by, dl.update_time from dylan_liuli dl
-        left join dylan_liuli_tag dlt on dl.id = dlt.liuli_id
-        left join dylan_tag dt on dlt.tag_id = dt.id
+        select distinct dl.id, dl.liuli_link, dl.bt_link, dl.liuli_title, dl.liuli_cat, dl.publish_time, dl.publish_author, dl.sub_content, dl.content, dl.del_flag, dl.create_by, dl.create_time, dl.update_by, dl.update_time from view_dylan_liuli dl
     </sql>
 
     <select id="selectDylanLiuliList" parameterType="com.ruoyi.dylan.bo.DylanLiuliBo" resultMap="DylanLiuliResult">
@@ -34,7 +32,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="btLink != null  and btLink != ''"> and dl.bt_link like concat("%", #{btLink}, "%")</if>
             <if test="liuliTitle != null  and liuliTitle != ''"> and (dl.liuli_title like concat("%", #{liuliTitle}, "%") or dl.sub_content like concat("%", #{liuliTitle}, "%") or dl.content like concat("%", #{liuliTitle}, "%"))</if>
             <if test="content != null  and content != ''"> and content like concat("%", #{content}, "%")</if>
-
+            <if test="liuliTagIdList != null">
+                and dl.tag_id in
+                <foreach collection="liuliTagIdList" item="liuliTagId" open="(" close=")" separator=",">
+                    #{liuliTagId}
+                </foreach>
+            </if>
+            <if test="liuliCatIdList != null">
+                and dl.liuli_cat in
+                <foreach collection="liuliCatIdList" item="liuliCatId" open="(" close=")" separator=",">
+                    #{liuliCatId}
+                </foreach>
+            </if>
         </where>
         order by publish_time desc
     </select>

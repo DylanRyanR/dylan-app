@@ -8,6 +8,7 @@ import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * @author dylan
  * @date 2024-03-17
  */
+@Slf4j
 @RestController
 @RequestMapping("/dylan/liuli")
 @Tag(name = "【琉璃-内容】管理")
@@ -50,8 +52,13 @@ public class DylanLiuliController extends BaseController
     public TableDataInfo list(DylanLiuliBo dylanLiuli)
     {
         startPage();
+        long start1 = System.currentTimeMillis();
         List<DylanLiuli> list = dylanLiuliService.selectDylanLiuliList(dylanLiuli);
+        long end1 = System.currentTimeMillis();
         List<DylanLiuliPageVo> vos = dylanLiuliService.generateVo(list);
+        long end2 = System.currentTimeMillis();
+        log.info("查询时间：{}ms", end1 - start1);
+        log.info("拼接时间：{}ms", end2 - end1);
         return getDataTable(vos, new PageInfo(list).getTotal());
     }
 

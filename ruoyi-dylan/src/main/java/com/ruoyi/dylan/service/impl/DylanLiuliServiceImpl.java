@@ -76,6 +76,19 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     @Override
     public List<DylanLiuli> selectDylanLiuliList(DylanLiuliBo dylanLiuli)
     {
+        // 设置相关查询条件
+        if (StringUtils.isNotBlank(dylanLiuli.getLiuliCatIds())){
+            List<Long> collect = Arrays.asList(dylanLiuli.getLiuliCatIds().split(",")).stream().map(Long::parseLong).distinct().collect(Collectors.toList());
+            if (ObjectUtils.isNotEmpty(collect)){
+                dylanLiuli.setLiuliCatIdList(collect);
+            }
+        }
+        if (StringUtils.isNotBlank(dylanLiuli.getLiuliTagIds())){
+            List<Long> collect = Arrays.asList(dylanLiuli.getLiuliTagIds().split(",")).stream().map(Long::parseLong).distinct().collect(Collectors.toList());
+            if (ObjectUtils.isNotEmpty(collect)){
+                dylanLiuli.setLiuliTagIdList(collect);
+            }
+        }
         return dylanLiuliMapper.selectDylanLiuliList(dylanLiuli);
     }
 

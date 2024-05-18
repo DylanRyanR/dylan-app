@@ -14,7 +14,7 @@ import org.springframework.core.env.Environment;
  * 
  * @author ruoyi
  */
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class }, scanBasePackages = {"org.jeecg.modules.jmreport", "com.ruoyi"})
 public class RuoYiApplication {
     public static void main(String[] args) throws UnknownHostException {
         // System.setProperty("spring.devtools.restart.enabled", "false");

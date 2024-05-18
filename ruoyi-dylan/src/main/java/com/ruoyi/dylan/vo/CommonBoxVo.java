@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class DylanTagBoxVo {
+public class CommonBoxVo {
 
     /** 标签id*/
     @Schema(description = "标签id")

@@ -1,6 +1,12 @@
 package com.ruoyi.dylan.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.ruoyi.dylan.domain.DylanTag;
+import com.ruoyi.dylan.vo.CommonBoxVo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,5 +115,22 @@ public class DylanCatagoryController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(dylanCatagoryService.deleteDylanCatagoryByIds(ids));
+    }
+
+    /**
+     * 类型下拉列表
+     */
+    @GetMapping("/boxList")
+    @Operation(summary = "类型下拉列表")
+    public AjaxResult boxList(){
+        List<CommonBoxVo> vos = new ArrayList<>();
+        List<DylanCatagory> list = dylanCatagoryService.list();
+        if (ObjectUtils.isNotEmpty(list)){
+            for (DylanCatagory cat : list){
+                CommonBoxVo vo = BeanUtil.toBean(cat, CommonBoxVo.class);
+                vos.add(vo);
+            }
+        }
+        return AjaxResult.success(vos);
     }
 }
