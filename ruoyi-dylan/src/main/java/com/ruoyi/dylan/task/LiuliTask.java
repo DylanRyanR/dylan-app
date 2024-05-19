@@ -8,6 +8,7 @@ import com.ruoyi.dylan.domain.DylanLiuliLink;
 import com.ruoyi.dylan.service.IDylanLiuliLinkService;
 import com.ruoyi.dylan.service.IDylanLiuliService;
 import com.ruoyi.dylan.service.impl.DylanLiuliServiceImpl;
+import com.ruoyi.dylan.utils.DylanCacheUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +47,8 @@ public class LiuliTask {
                 dylanLiuliService.syncLiuliContent(mainLink);
             }
         }
+        // 刷新缓存
+        DylanCacheUtils.evictCache("liuliList");
     }
 
     /**
@@ -72,6 +75,8 @@ public class LiuliTask {
                 redisCache.setCacheObject(key, nowPage, 120, TimeUnit.MINUTES);
             }
         }
+        // 刷新缓存
+        DylanCacheUtils.evictCache("liuliList");
 
     }
 }
