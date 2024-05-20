@@ -1,45 +1,100 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.dylan.mapper.DylanLiuliMapper">
-    
+
     <resultMap type="com.ruoyi.dylan.domain.DylanLiuli" id="DylanLiuliResult">
-        <result property="id"    column="id"    />
-        <result property="liuliLink"    column="liuli_link"    />
-        <result property="btLink"    column="bt_link"    />
-        <result property="liuliTitle"    column="liuli_title"    />
-        <result property="liuliCat"    column="liuli_cat"    />
-        <result property="publishTime"    column="publish_time"    />
-        <result property="publishAuthor"    column="publish_author"    />
-        <result property="subContent"    column="sub_content"    />
-        <result property="content"    column="content"    />
-        <result property="delFlag"    column="del_flag"    />
-        <result property="createBy"    column="create_by"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
-        <result property="updateTime"    column="update_time"    />
+        <result property="id" column="id"/>
+        <result property="liuliLink" column="liuli_link"/>
+        <result property="btLink" column="bt_link"/>
+        <result property="liuliTitle" column="liuli_title"/>
+        <result property="liuliCat" column="liuli_cat"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="publishAuthor" column="publish_author"/>
+        <result property="subContent" column="sub_content"/>
+        <result property="content" column="content"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <sql id="selectDylanLiuliVo">
-        select distinct dl.id, dl.liuli_link, dl.bt_link, dl.liuli_title, dl.liuli_cat, dl.publish_time, dl.publish_author, dl.sub_content, dl.content, dl.del_flag, dl.create_by, dl.create_time, dl.update_by, dl.update_time from view_dylan_liuli dl
+        SELECT t1.id,
+               t1.liuli_link,
+               t1.bt_link,
+               t1.liuli_title,
+               t1.liuli_cat,
+               t1.publish_time,
+               t1.publish_author,
+               t1.sub_content,
+               t1.content,
+               t1.del_flag,
+               t1.create_by,
+               t1.create_time,
+               t1.update_by,
+               t1.update_time,
+               GROUP_CONCAT(t2.tag_id ORDER BY t2.tag_id asc) as tag_ids,
+               GROUP_CONCAT(t3.name ORDER BY t2.tag_id asc)   as tag_name
+        FROM (SELECT id,
+                     liuli_link,
+                     bt_link,
+                     liuli_title,
+                     liuli_cat,
+                     publish_time,
+                     publish_author,
+                     sub_content,
+                     content,
+                     del_flag,
+                     create_by,
+                     create_time,
+                     update_by,
+                     update_time
+              FROM dylan_liuli) t1
+                 LEFT JOIN (SELECT DISTINCT liuli_id, tag_id FROM dylan_liuli_tag ORDER BY liuli_id, tag_id asc) t2
+                           ON t1.id = t2.liuli_id
+                 LEFT JOIN (SELECT DISTINCT id, NAME FROM dylan_tag WHERE del_flag = 0) t3 ON t2.tag_id = t3.id
+        GROUP BY id
+    </sql>
+
+    <sql id="selectDylanLiuliInfoVo">
+        SELECT id,
+               liuli_link,
+               bt_link,
+               liuli_title,
+               liuli_cat,
+               publish_time,
+               publish_author,
+               sub_content,
+               content,
+               del_flag,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from dylan_liuli
     </sql>
 
     <select id="selectDylanLiuliList" parameterType="com.ruoyi.dylan.bo.DylanLiuliBo" resultMap="DylanLiuliResult">
         <include refid="selectDylanLiuliVo"/>
-        <where>  
-            <if test="liuliLink != null  and liuliLink != ''"> and dl.liuli_link like concat("%", #{liuliLink}, "%")</if>
-            <if test="btLink != null  and btLink != ''"> and dl.bt_link like concat("%", #{btLink}, "%")</if>
-            <if test="liuliTitle != null  and liuliTitle != ''"> and (dl.liuli_title like concat("%", #{liuliTitle}, "%") or dl.sub_content like concat("%", #{liuliTitle}, "%") or dl.content like concat("%", #{liuliTitle}, "%"))</if>
-            <if test="content != null  and content != ''"> and content like concat("%", #{content}, "%")</if>
+        <where>
+            <if test="liuliLink != null  and liuliLink != ''">and t1.liuli_link like concat("%", #{liuliLink}, "%")</if>
+            <if test="btLink != null  and btLink != ''">and t1.bt_link like concat("%", #{btLink}, "%")</if>
+            <if test="liuliTitle != null  and liuliTitle != ''">and (t1.liuli_title like concat("%", #{liuliTitle}, "%")
+                or t1.sub_content like concat("%", #{liuliTitle}, "%") or t1.content like concat("%", #{liuliTitle},
+                "%"))
+            </if>
+            <if test="content != null  and content != ''">and content like concat("%", #{content}, "%")</if>
             <if test="liuliTagIdList != null">
-                and dl.tag_id in
+                and t3.tag_id in
                 <foreach collection="liuliTagIdList" item="liuliTagId" open="(" close=")" separator=",">
                     #{liuliTagId}
                 </foreach>
             </if>
             <if test="liuliCatIdList != null">
-                and dl.liuli_cat in
+                and t1.liuli_cat in
                 <foreach collection="liuliCatIdList" item="liuliCatId" open="(" close=")" separator=",">
                     #{liuliCatId}
                 </foreach>
@@ -47,12 +102,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
         order by publish_time desc
     </select>
-    
+
     <select id="selectDylanLiuliById" parameterType="Long" resultMap="DylanLiuliResult">
-        <include refid="selectDylanLiuliVo"/>
+        <include refid="selectDylanLiuliInfoVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertDylanLiuli" parameterType="DylanLiuli">
         insert into dylan_liuli
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -66,7 +121,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="liuliLink != null">#{liuliLink},</if>
@@ -78,7 +133,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateDylanLiuli" parameterType="DylanLiuli">
@@ -98,11 +153,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteDylanLiuliById" parameterType="Long">
-        delete from dylan_liuli where id = #{id}
+        delete
+        from dylan_liuli
+        where id = #{id}
     </delete>
 
     <delete id="deleteDylanLiuliByIds" parameterType="String">
-        delete from dylan_liuli where id in 
+        delete from dylan_liuli where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
