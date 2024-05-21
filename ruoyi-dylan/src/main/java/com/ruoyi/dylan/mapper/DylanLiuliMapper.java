@@ -1,10 +1,13 @@
 package com.ruoyi.dylan.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.dylan.bo.DylanLiuliBo;
+import com.ruoyi.dylan.bo.DylanQueryBo;
 import com.ruoyi.dylan.domain.DylanLiuli;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 琉璃-内容Mapper接口
@@ -61,4 +64,6 @@ public interface DylanLiuliMapper extends BaseMapper<DylanLiuli>
      * @return 结果
      */
     public int deleteDylanLiuliByIds(Long[] ids);
+
+    List<Map<String, Object>> getCommonList(@Param("sql") String sql);
 }

@@ -13,6 +13,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.dylan.bo.DylanLiuliBo;
+import com.ruoyi.dylan.bo.DylanQueryBo;
 import com.ruoyi.dylan.domain.*;
 import com.ruoyi.dylan.dto.LiuliInfoDto;
 import com.ruoyi.dylan.dto.LiuliListDto;
@@ -493,5 +494,14 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
         }
 
         return vos;
+    }
+
+    @Override
+    public List<Map<String, Object>> getCommonList(DylanQueryBo bo) {
+        String sql = bo.getSql();
+        if (StringUtils.isBlank(sql)){
+            return null;
+        }
+        return dylanLiuliMapper.getCommonList(sql);
     }
 }

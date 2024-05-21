@@ -1,9 +1,11 @@
 package com.ruoyi.dylan.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.github.pagehelper.PageInfo;
 import com.ruoyi.dylan.bo.DylanLiuliBo;
+import com.ruoyi.dylan.bo.DylanQueryBo;
 import com.ruoyi.dylan.utils.DylanCacheUtils;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,14 +19,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -144,5 +139,14 @@ public class DylanLiuliController extends BaseController
             DylanCacheUtils.evictCache("liuliList");
         }
         return toAjax(rows);
+    }
+
+    /**
+     * 大屏通用脚本
+     */
+    @PatchMapping("/commonQuery")
+    public AjaxResult getCommonList(@RequestBody DylanQueryBo bo){
+        List<Map<String, Object>> list = dylanLiuliService.getCommonList(bo);
+        return AjaxResult.success(list);
     }
 }

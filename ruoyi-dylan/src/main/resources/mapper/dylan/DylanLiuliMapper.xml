@@ -107,6 +107,9 @@
         <include refid="selectDylanLiuliInfoVo"/>
         where id = #{id}
     </select>
+    <select id="getCommonList" parameterType="java.lang.String" resultType="java.util.Map">
+        ${sql}
+    </select>
 
     <insert id="insertDylanLiuli" parameterType="DylanLiuli">
         insert into dylan_liuli

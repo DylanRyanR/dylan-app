@@ -1,9 +1,11 @@
 package com.ruoyi.dylan.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ruoyi.dylan.bo.DylanLiuliBo;
+import com.ruoyi.dylan.bo.DylanQueryBo;
 import com.ruoyi.dylan.domain.DylanLiuli;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 
@@ -66,4 +68,6 @@ public interface IDylanLiuliService extends IService<DylanLiuli>
     void syncLiuliContent(String mainLink);
 
     List<DylanLiuliPageVo> generateVo(List<DylanLiuli> list);
+
+    List<Map<String, Object>> getCommonList(DylanQueryBo bo);
 }
