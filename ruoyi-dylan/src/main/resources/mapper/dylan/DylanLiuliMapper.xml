@@ -35,9 +35,9 @@
                t1.create_by,
                t1.create_time,
                t1.update_by,
-               t1.update_time,
-               GROUP_CONCAT(t2.tag_id ORDER BY t2.tag_id asc) as tag_ids,
-               GROUP_CONCAT(t3.name ORDER BY t2.tag_id asc)   as tag_name
+               t1.update_time
+--                GROUP_CONCAT(t2.tag_id ORDER BY t2.tag_id asc) as tag_ids,
+--                GROUP_CONCAT(t3.name ORDER BY t2.tag_id asc)   as tag_name
         FROM (SELECT id,
                      liuli_link,
                      bt_link,
@@ -53,9 +53,6 @@
                      update_by,
                      update_time
               FROM dylan_liuli) t1
-                 LEFT JOIN (SELECT DISTINCT liuli_id, tag_id FROM dylan_liuli_tag ORDER BY liuli_id, tag_id asc) t2
-                           ON t1.id = t2.liuli_id
-                 LEFT JOIN (SELECT DISTINCT id, NAME FROM dylan_tag WHERE del_flag = 0) t3 ON t2.tag_id = t3.id
     </sql>
 
     <sql id="selectDylanLiuliInfoVo">
@@ -78,6 +75,13 @@
 
     <select id="selectDylanLiuliList" parameterType="com.ruoyi.dylan.bo.DylanLiuliBo" resultMap="DylanLiuliResult">
         <include refid="selectDylanLiuliVo"/>
+        <if test="liuliTagIdList != null">
+            LEFT JOIN (SELECT DISTINCT liuli_id, tag_id FROM dylan_liuli_tag ORDER BY liuli_id, tag_id asc) t2
+            ON t1.id = t2.liuli_id
+        </if>
+        <if test="liuliCatIdList != null">
+            LEFT JOIN (SELECT DISTINCT id, NAME FROM dylan_tag WHERE del_flag = 0) t3 ON t2.tag_id = t3.id
+        </if>
         <where>
             <if test="liuliLink != null  and liuliLink != ''">and t1.liuli_link like concat("%", #{liuliLink}, "%")</if>
             <if test="btLink != null  and btLink != ''">and t1.bt_link like concat("%", #{btLink}, "%")</if>
