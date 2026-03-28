@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.dylan.mapper.StatisticsMapper">
+
+    <select id="getLiuliCount" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM dylan_liuli WHERE del_flag = '0'
+    </select>
+
+    <select id="getTodayLiuliCount" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM dylan_liuli WHERE DATE(create_time) = CURDATE()
+    </select>
+
+    <select id="getTagCount" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM dylan_tag
+    </select>
+
+    <select id="getCategoryCount" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM dylan_catagory
+    </select>
+
+    <select id="getLiuliTrend" resultType="com.ruoyi.dylan.dto.NameValueDto">
+        SELECT
+            DATE_FORMAT(create_time, '%Y-%m-%d') AS name,
+            COUNT(id) AS value
+        FROM
+            dylan_liuli
+        WHERE
+            create_time >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        GROUP BY
+            DATE_FORMAT(create_time, '%Y-%m-%d')
+        ORDER BY
+            name
+    </select>
+
+    <select id="getCategoryDistribution" resultType="com.ruoyi.dylan.dto.NameValueDto">
+        SELECT
+            dc.name AS name,
+            COUNT(dl.id) AS value
+        FROM
+            dylan_liuli dl
+        LEFT JOIN
+            dylan_catagory dc ON dl.liuli_cat = dc.id
+        WHERE dl.del_flag = '0' AND dc.name IS NOT NULL
+        GROUP BY
+            dc.name
+    </select>
+
+    <select id="getTagRanking" resultType="com.ruoyi.dylan.dto.NameValueDto">
+        SELECT
+            dt.name AS name,
+            COUNT(dlt.tag_id) AS value
+        FROM
+            dylan_liuli_tag dlt
+        LEFT JOIN
+            dylan_tag dt ON dlt.tag_id = dt.id
+        GROUP BY
+            dt.name
+        ORDER BY
+            value DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="getAuthorRanking" resultType="com.ruoyi.dylan.dto.NameValueDto">
+        SELECT
+            publish_author AS name,
+            COUNT(id) AS value
+        FROM
+            dylan_liuli
+        WHERE
+            del_flag = '0' AND publish_author IS NOT NULL AND publish_author != ''
+        GROUP BY
+            publish_author
+        ORDER BY
+            value DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>
