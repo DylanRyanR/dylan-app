@@ -6,17 +6,11 @@ import java.util.Map;
 import com.github.pagehelper.PageInfo;
 import com.ruoyi.dylan.bo.DylanLiuliBo;
 import com.ruoyi.dylan.bo.DylanQueryBo;
-import com.ruoyi.dylan.utils.DylanCacheUtils;
 import com.ruoyi.dylan.vo.DylanLiuliPageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +33,6 @@ import com.ruoyi.common.core.page.TableDataInfo;
 @RestController
 @RequestMapping("/dylan/liuli")
 @Tag(name = "【琉璃-内容】管理")
-@CacheConfig(cacheNames = "liuliList")
 public class DylanLiuliController extends BaseController
 {
     @Autowired
@@ -52,7 +45,6 @@ public class DylanLiuliController extends BaseController
 //    @PreAuthorize("@ss.hasPermi('dylan:liuli:list')")
     @GetMapping("/list")
     @Operation(summary = "查询琉璃-内容列表")
-    @Cacheable(value = "liuliList", key = "#dylanLiuli.toString()")
     public TableDataInfo list(DylanLiuliBo dylanLiuli)
     {
         startPage();
@@ -101,10 +93,6 @@ public class DylanLiuliController extends BaseController
     public AjaxResult add(@RequestBody DylanLiuli dylanLiuli)
     {
         int rows = dylanLiuliService.insertDylanLiuli(dylanLiuli);
-        // 执行完成后刷新缓存
-        if (rows > 0) {
-            DylanCacheUtils.evictCache("liuliList");
-        }
         return toAjax(rows);
     }
 
@@ -118,9 +106,6 @@ public class DylanLiuliController extends BaseController
     public AjaxResult edit(@RequestBody DylanLiuli dylanLiuli)
     {
         int rows = dylanLiuliService.updateDylanLiuli(dylanLiuli);
-        if (rows > 0) {
-            DylanCacheUtils.evictCache("liuliList");
-        }
         return toAjax(rows);
     }
 
@@ -135,9 +120,6 @@ public class DylanLiuliController extends BaseController
     {
         // 进行删除操作
         int rows = dylanLiuliService.deleteDylanLiuliByIds(ids);
-        if (rows > 0) {
-            DylanCacheUtils.evictCache("liuliList");
-        }
         return toAjax(rows);
     }
 

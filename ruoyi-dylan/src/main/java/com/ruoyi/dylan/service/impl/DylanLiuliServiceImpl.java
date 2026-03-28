@@ -421,76 +421,91 @@ public class DylanLiuliServiceImpl extends ServiceImpl<DylanLiuliMapper, DylanLi
     @Override
     public List<DylanLiuliPageVo> generateVo(List<DylanLiuli> list) {
         List<DylanLiuliPageVo> vos = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(list)){
-            // 获取对应的类型和标签、图片附件
-            List<Long> catIdList = list.stream().filter(val -> ObjectUtils.isNotNull(val.getLiuliCat())).map(DylanLiuli::getLiuliCat).distinct().collect(Collectors.toList());
+        if (ObjectUtils.isNotEmpty(list)) {
+            List<Long> catIdList = list.stream()
+                    .filter(val -> ObjectUtils.isNotNull(val.getLiuliCat()))
+                    .map(DylanLiuli::getLiuliCat)
+                    .distinct()
+                    .collect(Collectors.toList());
             List<Long> idList = list.stream().map(DylanLiuli::getId).collect(Collectors.toList());
-            List<DylanCatagory> dylanCatagories = new ArrayList<>();
-            if (ObjectUtils.isNotEmpty(catIdList)){
-                dylanCatagories = dylanCatagoryService.listByIds(catIdList);
+
+            Map<Long, DylanCatagory> catagoryMap = new HashMap<>();
+            if (ObjectUtils.isNotEmpty(catIdList)) {
+                List<DylanCatagory> dylanCatagories = dylanCatagoryService.listByIds(catIdList);
+                if (ObjectUtils.isNotEmpty(dylanCatagories)) {
+                    catagoryMap = dylanCatagories.stream().collect(Collectors.toMap(DylanCatagory::getId, val -> val, (a, b) -> a));
+                }
             }
+
+            Map<Long, List<Long>> liuliTagIdMap = new HashMap<>();
+            Set<Long> tagIdSet = new HashSet<>();
             List<DylanLiuliTag> liuliTags = dylanLiuliTagService.list(new QueryWrapper<DylanLiuliTag>().lambda()
                     .in(DylanLiuliTag::getLiuliId, idList));
-            List<DylanTag> dylanTags = new ArrayList<>();
-            List<Long> tagIdList = new ArrayList<>();
-            if (ObjectUtils.isNotEmpty(liuliTags)){
-                tagIdList.addAll(liuliTags.stream().map(DylanLiuliTag::getTagId).collect(Collectors.toList()));
-                if (ObjectUtils.isNotEmpty(tagIdList)){
-                    dylanTags = dylanTagService.listByIds(tagIdList);
+            if (ObjectUtils.isNotEmpty(liuliTags)) {
+                liuliTagIdMap = liuliTags.stream().collect(Collectors.groupingBy(
+                        DylanLiuliTag::getLiuliId,
+                        Collectors.mapping(DylanLiuliTag::getTagId, Collectors.toList())
+                ));
+                tagIdSet = liuliTags.stream().map(DylanLiuliTag::getTagId).collect(Collectors.toSet());
+            }
+
+            Map<Long, String> tagNameMap = new HashMap<>();
+            if (ObjectUtils.isNotEmpty(tagIdSet)) {
+                List<DylanTag> dylanTags = dylanTagService.listByIds(tagIdSet);
+                if (ObjectUtils.isNotEmpty(dylanTags)) {
+                    tagNameMap = dylanTags.stream().collect(Collectors.toMap(DylanTag::getId, DylanTag::getName, (a, b) -> a));
                 }
             }
-            // 查询图片附件
+
+            Map<Long, Long> liuliAnnexIdMap = new HashMap<>();
+            Set<Long> annexIdSet = new HashSet<>();
             List<DylanLiuliAnnex> liuliAnnexList = dylanLiuliAnnexService.list(new QueryWrapper<DylanLiuliAnnex>().lambda()
                     .in(DylanLiuliAnnex::getLiuliId, idList));
-            List<DylanAnnex> dylanAnnexList = new ArrayList<>();
-            if (ObjectUtils.isNotEmpty(liuliAnnexList)){
-                Set<Long> annexIdSet = liuliAnnexList.stream().map(DylanLiuliAnnex::getAnnexId).collect(Collectors.toSet());
-                if (ObjectUtils.isNotEmpty(annexIdSet)){
-                    List<DylanAnnex> subDylanAnnexList = dylanAnnexService.listByIds(annexIdSet);
-                    if (ObjectUtils.isNotEmpty(subDylanAnnexList)){
-                        dylanAnnexList.addAll(subDylanAnnexList);
-                    }
+            if (ObjectUtils.isNotEmpty(liuliAnnexList)) {
+                liuliAnnexIdMap = liuliAnnexList.stream().collect(Collectors.toMap(
+                        DylanLiuliAnnex::getLiuliId,
+                        DylanLiuliAnnex::getAnnexId,
+                        (a, b) -> a
+                ));
+                annexIdSet = liuliAnnexList.stream().map(DylanLiuliAnnex::getAnnexId).collect(Collectors.toSet());
+            }
+
+            Map<Long, String> annexUrlMap = new HashMap<>();
+            if (ObjectUtils.isNotEmpty(annexIdSet)) {
+                List<DylanAnnex> dylanAnnexList = dylanAnnexService.listByIds(annexIdSet);
+                if (ObjectUtils.isNotEmpty(dylanAnnexList)) {
+                    annexUrlMap = dylanAnnexList.stream().collect(Collectors.toMap(DylanAnnex::getId, DylanAnnex::getUrl, (a, b) -> a));
                 }
             }
-            List<DylanCatagory> finalDylanCatagories = dylanCatagories;
-            List<DylanTag> finalDylanTags = dylanTags;
-            list.forEach(liuli ->{
+
+            for (DylanLiuli liuli : list) {
                 DylanLiuliPageVo vo = BeanUtil.toBean(liuli, DylanLiuliPageVo.class);
-                // 拼接类型
+
                 Long liuliCat = liuli.getLiuliCat();
-                if (ObjectUtils.isNotNull(liuliCat)){
-                    DylanCatagory dylanCatagory = finalDylanCatagories.stream().filter(val -> liuliCat.equals(val.getId())).findFirst().orElse(null);
-                    if (ObjectUtils.isNotNull(dylanCatagory)){
+                if (ObjectUtils.isNotNull(liuliCat)) {
+                    DylanCatagory dylanCatagory = catagoryMap.get(liuliCat);
+                    if (ObjectUtils.isNotNull(dylanCatagory)) {
                         vo.setCatName(dylanCatagory.getName());
                     }
                 }
-                // 拼接标签
-                if (ObjectUtils.isNotEmpty(liuliTags)){
-                    List<DylanLiuliTag> subLiuliTagList = liuliTags.stream().filter(val -> liuli.getId().equals(val.getLiuliId())).distinct().collect(Collectors.toList());
-                    if (ObjectUtils.isNotEmpty(subLiuliTagList)){
-                        List<Long> subTagIdList = subLiuliTagList.stream().map(DylanLiuliTag::getTagId).distinct().collect(Collectors.toList());
-                        if (ObjectUtils.isNotEmpty(subTagIdList)){
-                            if (ObjectUtils.isNotEmpty(finalDylanTags)){
-                                List<DylanTag> subDylanTags = finalDylanTags.stream().filter(val -> subTagIdList.contains(val.getId())).distinct().collect(Collectors.toList());
-                                if (ObjectUtils.isNotEmpty(subDylanTags)){
-                                    vo.setTagNames(subDylanTags.stream().map(DylanTag::getName).collect(Collectors.joining(",")));
-                                }
-                            }
-                        }
-                    }
+
+                List<Long> subTagIdList = liuliTagIdMap.get(liuli.getId());
+                if (ObjectUtils.isNotEmpty(subTagIdList)) {
+                    String tagNames = subTagIdList.stream()
+                            .map(tagNameMap::get)
+                            .filter(StringUtils::isNotBlank)
+                            .distinct()
+                            .collect(Collectors.joining(","));
+                    vo.setTagNames(tagNames);
                 }
-                // 拼接图片
-                if (ObjectUtils.isNotEmpty(liuliAnnexList)){
-                    DylanLiuliAnnex dylanLiuliAnnex = liuliAnnexList.stream().filter(val -> liuli.getId().equals(val.getLiuliId())).findFirst().orElse(null);
-                    if (ObjectUtils.isNotNull(dylanLiuliAnnex)){
-                        DylanAnnex dylanAnnex = dylanAnnexList.stream().filter(val -> dylanLiuliAnnex.getAnnexId().equals(val.getId())).findFirst().orElse(null);
-                        if (ObjectUtils.isNotEmpty(dylanAnnex)){
-                            vo.setImgUrl(dylanAnnex.getUrl());
-                        }
-                    }
+
+                Long annexId = liuliAnnexIdMap.get(liuli.getId());
+                if (ObjectUtils.isNotNull(annexId)) {
+                    vo.setImgUrl(annexUrlMap.get(annexId));
                 }
+
                 vos.add(vo);
-            });
+            }
         }
 
         return vos;
