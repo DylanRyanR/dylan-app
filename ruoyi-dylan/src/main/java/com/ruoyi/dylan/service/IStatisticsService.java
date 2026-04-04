@@ -4,16 +4,17 @@ import com.ruoyi.dylan.dto.KpiDataDto;
 import com.ruoyi.dylan.dto.NameValueDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IStatisticsService {
 
-    KpiDataDto getKpiData();
+    KpiDataDto getKpiData(String rangeType, String beginDate, String endDate);
 
-    List<NameValueDto> getLiuliTrend();
+    Map<String, Object> getLiuliTrend(String rangeType, String beginDate, String endDate);
 
-    List<NameValueDto> getCategoryDistribution();
+    List<NameValueDto> getCategoryDistribution(String rangeType, String beginDate, String endDate);
 
-    List<NameValueDto> getTagRanking();
+    List<NameValueDto> getTagRanking(String rangeType, String beginDate, String endDate);
 
-    List<NameValueDto> getAuthorRanking();
+    List<NameValueDto> getAuthorRanking(String rangeType, String beginDate, String endDate);
 }

@@ -5,7 +5,13 @@
 <mapper namespace="com.ruoyi.dylan.mapper.StatisticsMapper">
 
     <select id="getLiuliCount" resultType="java.lang.Long">
-        SELECT COUNT(id) FROM dylan_liuli WHERE del_flag = '0'
+        SELECT COUNT(id)
+        FROM dylan_liuli
+        WHERE del_flag = '0'
+        <if test="beginDate != null and endDate != null">
+            AND DATE(create_time) <![CDATA[>=]]> #{beginDate}
+            AND DATE(create_time) <![CDATA[<=]]> #{endDate}
+        </if>
     </select>
 
     <select id="getTodayLiuliCount" resultType="java.lang.Long">
@@ -20,6 +26,24 @@
         SELECT COUNT(id) FROM dylan_catagory
     </select>
 
+    <select id="getPeriodLiuliCount" resultType="java.lang.Long">
+        SELECT COUNT(id)
+        FROM dylan_liuli
+        WHERE del_flag = '0'
+        <if test="beginDate != null and endDate != null">
+            AND DATE(create_time) <![CDATA[>=]]> #{beginDate}
+            AND DATE(create_time) <![CDATA[<=]]> #{endDate}
+        </if>
+    </select>
+
+    <select id="getLiuliCountBefore" resultType="java.lang.Long">
+        SELECT COUNT(id)
+        FROM dylan_liuli
+        WHERE del_flag = '0'
+          AND create_time <![CDATA[<]]> STR_TO_DATE(#{beginDate}, '%Y-%m-%d')
+          AND create_time >= DATE_SUB(STR_TO_DATE(#{beginDate}, '%Y-%m-%d'), INTERVAL #{diffDays} DAY)
+    </select>
+
     <select id="getLiuliTrend" resultType="com.ruoyi.dylan.dto.NameValueDto">
         SELECT
             DATE_FORMAT(create_time, '%Y-%m-%d') AS name,
@@ -27,7 +51,11 @@
         FROM
             dylan_liuli
         WHERE
-            create_time >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+            del_flag = '0'
+        <if test="beginDate != null and endDate != null">
+            AND DATE(create_time) <![CDATA[>=]]> #{beginDate}
+            AND DATE(create_time) <![CDATA[<=]]> #{endDate}
+        </if>
         GROUP BY
             DATE_FORMAT(create_time, '%Y-%m-%d')
         ORDER BY
@@ -43,6 +71,10 @@
         LEFT JOIN
             dylan_catagory dc ON dl.liuli_cat = dc.id
         WHERE dl.del_flag = '0' AND dc.name IS NOT NULL
+        <if test="beginDate != null and endDate != null">
+            AND DATE(dl.create_time) <![CDATA[>=]]> #{beginDate}
+            AND DATE(dl.create_time) <![CDATA[<=]]> #{endDate}
+        </if>
         GROUP BY
             dc.name
     </select>
@@ -55,6 +87,14 @@
             dylan_liuli_tag dlt
         LEFT JOIN
             dylan_tag dt ON dlt.tag_id = dt.id
+        LEFT JOIN
+            dylan_liuli dl ON dlt.liuli_id = dl.id
+        WHERE
+            dl.del_flag = '0'
+        <if test="beginDate != null and endDate != null">
+            AND DATE(dl.create_time) <![CDATA[>=]]> #{beginDate}
+            AND DATE(dl.create_time) <![CDATA[<=]]> #{endDate}
+        </if>
         GROUP BY
             dt.name
         ORDER BY
@@ -70,6 +110,10 @@
             dylan_liuli
         WHERE
             del_flag = '0' AND publish_author IS NOT NULL AND publish_author != ''
+        <if test="beginDate != null and endDate != null">
+            AND DATE(create_time) <![CDATA[>=]]> #{beginDate}
+            AND DATE(create_time) <![CDATA[<=]]> #{endDate}
+        </if>
         GROUP BY
             publish_author
         ORDER BY

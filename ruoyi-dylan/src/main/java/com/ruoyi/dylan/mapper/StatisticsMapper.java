@@ -8,7 +8,7 @@ import java.util.List;
 @Mapper
 public interface StatisticsMapper {
 
-    Long getLiuliCount();
+    Long getLiuliCount(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
     Long getTodayLiuliCount();
 
@@ -16,11 +16,15 @@ public interface StatisticsMapper {
 
     Long getCategoryCount();
 
-    List<NameValueDto> getLiuliTrend(@Param("days") int days);
+    Long getPeriodLiuliCount(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
-    List<NameValueDto> getCategoryDistribution();
+    Long getLiuliCountBefore(@Param("beginDate") String beginDate, @Param("diffDays") long diffDays);
 
-    List<NameValueDto> getTagRanking(@Param("limit") int limit);
+    List<NameValueDto> getLiuliTrend(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
 
-    List<NameValueDto> getAuthorRanking(@Param("limit") int limit);
+    List<NameValueDto> getCategoryDistribution(@Param("beginDate") String beginDate, @Param("endDate") String endDate);
+
+    List<NameValueDto> getTagRanking(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("limit") int limit);
+
+    List<NameValueDto> getAuthorRanking(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("limit") int limit);
 }
