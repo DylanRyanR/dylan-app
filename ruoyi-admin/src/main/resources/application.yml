@@ -94,8 +94,6 @@ spring:
 
   cache:
     type: redis
-    redis:
-      time-to-live: 30m
 
 # token配置
 token:
