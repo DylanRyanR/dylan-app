@@ -55,9 +55,14 @@ public interface IDylanTagService extends IService<DylanTag>
 
     /**
      * 删除标签信息
-     * 
+     *
      * @param id 标签主键
      * @return 结果
      */
     public int deleteDylanTagById(Long id);
+
+    /**
+     * 获取全部标签（走缓存）
+     */
+    public List<DylanTag> getAllTags();
 }

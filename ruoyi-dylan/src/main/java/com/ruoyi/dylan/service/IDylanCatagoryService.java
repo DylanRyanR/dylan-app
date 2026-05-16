@@ -55,9 +55,14 @@ public interface IDylanCatagoryService extends IService<DylanCatagory>
 
     /**
      * 删除类型信息
-     * 
+     *
      * @param id 类型主键
      * @return 结果
      */
     public int deleteDylanCatagoryById(Long id);
+
+    /**
+     * 获取全部类型（走缓存）
+     */
+    public List<DylanCatagory> getAllCatagories();
 }

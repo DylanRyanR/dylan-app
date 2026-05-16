@@ -2,6 +2,7 @@ package com.ruoyi.dylan.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -35,6 +36,7 @@ public class DylanTag extends BaseEntity
 
     /** 删除标志（0代表存在 2代表删除） */
     @Schema(description = "删除标志（0代表存在 2代表删除）")
+    @TableLogic(value = "0", delval = "2")
     private String delFlag;
 
 

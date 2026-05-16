@@ -22,40 +22,21 @@
     </resultMap>
 
     <sql id="selectDylanLiuliVo">
-        SELECT t1.id,
-               t1.liuli_link,
-               t1.bt_link,
-               t1.liuli_title,
-               t1.liuli_cat,
-               t1.publish_time,
-               t1.publish_author,
-               t1.sub_content,
-               t1.content,
-               t1.del_flag,
-               t1.create_by,
-               t1.create_time,
-               t1.update_by,
-               t1.update_time,
-               GROUP_CONCAT(t2.tag_id ORDER BY t2.tag_id asc) as tag_ids,
-               GROUP_CONCAT(t3.name ORDER BY t2.tag_id asc)   as tag_name
-        FROM (SELECT id,
-                     liuli_link,
-                     bt_link,
-                     liuli_title,
-                     liuli_cat,
-                     publish_time,
-                     publish_author,
-                     sub_content,
-                     content,
-                     del_flag,
-                     create_by,
-                     create_time,
-                     update_by,
-                     update_time
-              FROM dylan_liuli) t1
-                 LEFT JOIN (SELECT DISTINCT liuli_id, tag_id FROM dylan_liuli_tag ORDER BY liuli_id, tag_id asc) t2
-                           ON t1.id = t2.liuli_id
-                 LEFT JOIN (SELECT DISTINCT id, NAME FROM dylan_tag WHERE del_flag = 0) t3 ON t2.tag_id = t3.id
+        SELECT id,
+               liuli_link,
+               bt_link,
+               liuli_title,
+               liuli_cat,
+               publish_time,
+               publish_author,
+               sub_content,
+               content,
+               del_flag,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        FROM dylan_liuli
     </sql>
 
     <sql id="selectDylanLiuliInfoVo">
@@ -79,27 +60,28 @@
     <select id="selectDylanLiuliList" parameterType="com.ruoyi.dylan.bo.DylanLiuliBo" resultMap="DylanLiuliResult">
         <include refid="selectDylanLiuliVo"/>
         <where>
-            <if test="liuliLink != null  and liuliLink != ''">and t1.liuli_link like concat("%", #{liuliLink}, "%")</if>
-            <if test="btLink != null  and btLink != ''">and t1.bt_link like concat("%", #{btLink}, "%")</if>
-            <if test="liuliTitle != null  and liuliTitle != ''">and (t1.liuli_title like concat("%", #{liuliTitle}, "%")
-                or t1.sub_content like concat("%", #{liuliTitle}, "%") or t1.content like concat("%", #{liuliTitle},
-                "%"))
+            <if test="liuliLink != null  and liuliLink != ''">and liuli_link like concat("%", #{liuliLink}, "%")</if>
+            <if test="btLink != null  and btLink != ''">and bt_link like concat("%", #{btLink}, "%")</if>
+            <if test="liuliTitle != null  and liuliTitle != ''">and (liuli_title like concat("%", #{liuliTitle}, "%")
+                or sub_content like concat("%", #{liuliTitle}, "%") or content like concat("%", #{liuliTitle}, "%"))
             </if>
             <if test="content != null  and content != ''">and content like concat("%", #{content}, "%")</if>
             <if test="liuliTagIdList != null">
-                and t3.tag_id in
-                <foreach collection="liuliTagIdList" item="liuliTagId" open="(" close=")" separator=",">
-                    #{liuliTagId}
-                </foreach>
+                and exists (
+                    select 1 from dylan_liuli_tag lt where lt.liuli_id = id
+                    and lt.tag_id in
+                    <foreach collection="liuliTagIdList" item="liuliTagId" open="(" close=")" separator=",">
+                        #{liuliTagId}
+                    </foreach>
+                )
             </if>
             <if test="liuliCatIdList != null">
-                and t1.liuli_cat in
+                and liuli_cat in
                 <foreach collection="liuliCatIdList" item="liuliCatId" open="(" close=")" separator=",">
                     #{liuliCatId}
                 </foreach>
             </if>
         </where>
-        GROUP BY t1.id
         order by publish_time desc
     </select>
 
